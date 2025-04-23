@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/devfullcycle/imersao22/go-gateway/internal/domain"
-	"github.com/devfullcycle/imersao22/go-gateway/internal/dto"
-	"github.com/devfullcycle/imersao22/go-gateway/internal/service"
+	"github.com/facundes/imersao22/go-gateway/internal/domain"
+	"github.com/facundes/imersao22/go-gateway/internal/dto"
+	"github.com/facundes/imersao22/go-gateway/internal/service"
 	"github.com/go-chi/chi/v5"
 )
 

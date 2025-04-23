@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/devfullcycle/imersao22/go-gateway/internal/repository"
-	"github.com/devfullcycle/imersao22/go-gateway/internal/service"
-	"github.com/devfullcycle/imersao22/go-gateway/internal/web/server"
+	"github.com/facundes/imersao22/go-gateway/internal/repository"
+	"github.com/facundes/imersao22/go-gateway/internal/service"
+	"github.com/facundes/imersao22/go-gateway/internal/web/server"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )

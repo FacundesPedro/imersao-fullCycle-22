@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/devfullcycle/imersao22/go-gateway/internal/domain"
+	"github.com/facundes/imersao22/go-gateway/internal/domain"
 )
 
 const (
@@ -50,7 +50,7 @@ func ToInvoice(input CreateInvoiceInput, accountID string) (*domain.Invoice, err
 		input.Amount,
 		input.Description,
 		input.PaymentType,
-		card,
+		&card,
 	)
 }
 

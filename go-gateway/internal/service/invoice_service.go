@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/devfullcycle/imersao22/go-gateway/internal/domain"
-	"github.com/devfullcycle/imersao22/go-gateway/internal/dto"
+	"github.com/facundes/imersao22/go-gateway/internal/domain"
+	"github.com/facundes/imersao22/go-gateway/internal/dto"
 )
 
 type InvoiceService struct {
@@ -28,7 +28,7 @@ func (s *InvoiceService) Create(input dto.CreateInvoiceInput) (*dto.InvoiceOutpu
 		return nil, err
 	}
 
-	if err := invoice.Process(); err != nil {
+	if err := invoice.ProcessPayment(); err != nil {
 		return nil, err
 	}
 

@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	"github.com/devfullcycle/imersao22/go-gateway/internal/domain"
+	"github.com/google/uuid"
 )
 
 // Status contants
@@ -37,8 +37,27 @@ type CreditCard struct {
 
 func NewInvoice(accountId string, amount float64, description string, paymentType string, card *CreditCard) (*Invoice, error) {
 	if amount <= 0 {
-		return nil, domain.ErrInvalidAmount
+		return nil, ErrInvalidAmount
 	}
 
+	cardLastDigits := card.Number[len(card.Number)-4:]
+
+	return &Invoice{
+		ID:             uuid.New().String(),
+		AccountID:      accountId,
+		Amount:         amount,
+		Status:         StatusPending,
+		Description:    description,
+		PaymentType:    paymentType,
+		CardLastDigits: cardLastDigits,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}, nil
+}
+
+func (i *Invoice) ProcessPayment() error {
+	if i.Amount > 10000 {
+		return nil
+	}
 	return nil
 }
