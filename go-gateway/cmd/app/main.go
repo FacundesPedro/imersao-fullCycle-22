@@ -13,51 +13,46 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// getEnv retorna variável de ambiente ou valor padrão se não definida
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
 	return defaultValue
 }
+func getSqlStringConnection() string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		getEnv("DB_HOST", "localhost"),
+		getEnv("DB_PORT", "5432"),
+		getEnv("DB_USER", "postgres"),
+		getEnv("DB_PASSWORD", "postgres"),
+		getEnv("DB_NAME", "gateway_go"),
+		getEnv("DB_SSL_MODE", "disable"),
+	)
+}
 
 func main() {
-	// Carrega variáveis de ambiente do arquivo .env
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Configura conexão com PostgreSQL usando variáveis de ambiente
-	connStr := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		getEnv("DB_HOST", "db"),
-		getEnv("DB_PORT", "5432"),
-		getEnv("DB_USER", "postgres"),
-		getEnv("DB_PASSWORD", "postgres"),
-		getEnv("DB_NAME", "gateway"),
-		getEnv("DB_SSL_MODE", "disable"),
-	)
-
-	// Inicializa conexão com o banco
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", getSqlStringConnection())
 	if err != nil {
-		log.Fatal("Error connecting to database: ", err)
+		log.Fatal("Error connection to database -> ", err.Error())
 	}
+
 	defer db.Close()
 
-	// Inicializa camadas da aplicação (repository -> service -> server)
 	accountRepository := repository.NewAccountRepository(db)
 	accountService := service.NewAccountService(accountRepository)
 
-	invoiceRepository := repository.NewInvoiceRepository(db)
-	invoiceService := service.NewInvoiceService(invoiceRepository, *accountService)
-
-	// Configura e inicia o servidor HTTP
 	port := getEnv("HTTP_PORT", "8080")
-	srv := server.NewServer(accountService, invoiceService, port)
-	srv.ConfigureRoutes()
+	server := server.NewServer(accountService, port)
+	server.SetRoutes()
 
-	if err := srv.Start(); err != nil {
-		log.Fatal("Error starting server: ", err)
+	if err := server.Start(); err != nil {
+		log.Fatal("Error starting the server -> ", err.Error())
 	}
+
+	print("Server listening on port ", port)
 }

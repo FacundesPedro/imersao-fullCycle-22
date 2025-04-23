@@ -13,48 +13,44 @@ type AccountHandler struct {
 	accountService *service.AccountService
 }
 
-// NewAccountHandler cria um novo handler de contas
-func NewAccountHandler(accountService *service.AccountService) *AccountHandler {
-	return &AccountHandler{accountService: accountService}
+func NewAccountHandler(svc *service.AccountService) *AccountHandler {
+	return &AccountHandler{accountService: svc}
 }
 
-// Create processa POST /accounts
-// Retorna 201 Created ou erro 400/500
-func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) Create(resp http.ResponseWriter, req *http.Request) {
 	var input dto.CreateAccountInput
-	err := json.NewDecoder(r.Body).Decode(&input)
+
+	err := json.NewDecoder(req.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(resp, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	output, err := h.accountService.CreateAccount(input)
+	out, err := h.accountService.NewAccount(input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(resp, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(output)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.WriteHeader(http.StatusCreated)
+	json.NewEncoder(resp).Encode(out)
 }
 
-// Get processa GET /accounts
-// Requer X-API-Key no header
-func (h *AccountHandler) Get(w http.ResponseWriter, r *http.Request) {
-	apiKey := r.Header.Get("X-API-Key")
+func (h *AccountHandler) Get(resp http.ResponseWriter, req *http.Request) {
+	apiKey := req.Header.Get("X-API-KEY")
 	if apiKey == "" {
-		http.Error(w, "API Key is required", http.StatusUnauthorized)
+		http.Error(resp, "X-API-Key header is required", http.StatusUnauthorized)
 		return
 	}
 
-	output, err := h.accountService.FindByAPIKey(apiKey)
+	out, err := h.accountService.FindByAPIKey(apiKey)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(resp, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(output)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.WriteHeader(http.StatusOK)
+	json.NewEncoder(resp).Encode(out)
 }

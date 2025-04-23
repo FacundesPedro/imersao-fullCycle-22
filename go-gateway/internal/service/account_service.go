@@ -5,72 +5,56 @@ import (
 	"github.com/devfullcycle/imersao22/go-gateway/internal/dto"
 )
 
-// AccountService implementa a lógica de negócios para operações com Account
 type AccountService struct {
 	repository domain.AccountRepository
 }
 
-// NewAccountService cria um novo serviço de contas
 func NewAccountService(repository domain.AccountRepository) *AccountService {
 	return &AccountService{repository: repository}
 }
 
-// CreateAccount cria uma nova conta e valida duplicidade de API Key
-// Retorna ErrDuplicatedAPIKey se a chave já existir
-func (s *AccountService) CreateAccount(input dto.CreateAccountInput) (*dto.AccountOutput, error) {
-	account := dto.ToAccount(input)
+func (s *AccountService) NewAccount(input dto.CreateAccountInput) (*dto.AccountOutput, error) {
+	act := dto.ToAccount(input)
 
-	// Verifica duplicidade de API Key antes da criação
-	existingAccount, err := s.repository.FindByAPIKey(account.APIKey)
+	prevAccount, err := s.repository.FindByAPIKey(act.API_KEY)
 	if err != nil && err != domain.ErrAccountNotFound {
 		return nil, err
 	}
-	if existingAccount != nil {
+
+	if prevAccount != nil {
 		return nil, domain.ErrDuplicatedAPIKey
 	}
-
-	err = s.repository.Save(account)
+	err = s.repository.Save(act)
 	if err != nil {
 		return nil, err
 	}
 
-	output := dto.FromAccount(account)
-	return &output, nil
+	out := dto.FromAccount(act)
+	return &out, nil
 }
 
-// UpdateBalance atualiza o saldo de uma conta de forma thread-safe
-// O amount pode ser positivo (crédito)
-func (s *AccountService) UpdateBalance(apiKey string, amount float64) (*dto.AccountOutput, error) {
-	account, err := s.repository.FindByAPIKey(apiKey)
+func (s *AccountService) SetBalance(apiKey string, amount float64) (*dto.AccountOutput, error) {
+	act, err := s.repository.FindByAPIKey(apiKey)
 	if err != nil {
 		return nil, err
 	}
 
-	account.AddBalance(amount)
-	err = s.repository.UpdateBalance(account)
+	act.SetBalance(amount)
+	err = s.repository.SetBalance(act)
 	if err != nil {
 		return nil, err
 	}
-	output := dto.FromAccount(account)
-	return &output, nil
+
+	out := dto.FromAccount(act)
+	return &out, nil
 }
 
-// FindByAPIKey busca uma conta pelo API Key
 func (s *AccountService) FindByAPIKey(apiKey string) (*dto.AccountOutput, error) {
-	account, err := s.repository.FindByAPIKey(apiKey)
+	act, err := s.repository.FindByAPIKey(apiKey)
 	if err != nil {
 		return nil, err
 	}
-	output := dto.FromAccount(account)
-	return &output, nil
-}
 
-// FindByID busca uma conta pelo ID
-func (s *AccountService) FindByID(id string) (*dto.AccountOutput, error) {
-	account, err := s.repository.FindByID(id)
-	if err != nil {
-		return nil, err
-	}
-	output := dto.FromAccount(account)
-	return &output, nil
+	out := dto.FromAccount(act)
+	return &out, nil
 }

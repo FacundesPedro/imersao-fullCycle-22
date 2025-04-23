@@ -18,14 +18,14 @@ type AccountOutput struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Balance   float64   `json:"balance"`
-	APIKey    string    `json:"api_key,omitempty"`
+	API_KEY   string    `json:"api_key,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ToAccount converte CreateAccountInput para domain.Account
 func ToAccount(input CreateAccountInput) *domain.Account {
-	return domain.NewAccount(input.Name, input.Email)
+	return domain.CreateAccount(input.Name, input.Email)
 }
 
 // FromAccount converte domain.Account para AccountOutput
@@ -35,7 +35,7 @@ func FromAccount(account *domain.Account) AccountOutput {
 		Name:      account.Name,
 		Email:     account.Email,
 		Balance:   account.Balance,
-		APIKey:    account.APIKey,
+		API_KEY:   account.API_KEY,
 		CreatedAt: account.CreatedAt,
 		UpdatedAt: account.UpdatedAt,
 	}

@@ -9,46 +9,45 @@ import (
 	"github.com/google/uuid"
 )
 
-// Account representa uma conta com suas informações e saldo protegido para acessos concorrentes
 type Account struct {
 	ID        string
 	Name      string
 	Email     string
-	APIKey    string
+	API_KEY   string
 	Balance   float64
-	mu        sync.RWMutex
+	Mu        sync.RWMutex
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-// generateAPIKey gera uma chave API segura usando crypto/rand
-func generateAPIKey() string {
-	// Usa crypto/rand para garantir chaves API seguras
-	b := make([]byte, 16)
-	rand.Read(b)
-	return hex.EncodeToString(b)
+func createAPIKey() string {
+	arr := make([]byte, 16)
+	rand.Read(arr)
+	//
+	return hex.EncodeToString(arr)
 }
 
-// NewAccount cria uma conta com ID único, API Key segura e timestamps iniciais
-func NewAccount(name, email string) *Account {
+func CreateAccount(name, email string) *Account {
 	account := &Account{
-		ID:        uuid.New().String(),
 		Name:      name,
 		Email:     email,
+		ID:        uuid.New().String(),
 		Balance:   0,
-		APIKey:    generateAPIKey(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
+		API_KEY:   createAPIKey(),
 	}
 
 	return account
 }
 
-// AddBalance modifica o saldo da conta de forma thread-safe
-func (a *Account) AddBalance(amount float64) {
-	// Mutex garante exclusão mútua no acesso ao saldo
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	a.Balance += amount
-	a.UpdatedAt = time.Now()
+func (act *Account) SetBalance(amount float64) {
+	// before change value, freeze the values for not create a racing condition
+	act.Mu.Lock()
+	// unlock freeze to the account object;
+	// defer will await to the end of the function to execute
+	defer act.Mu.Unlock()
+	// now change account balance
+	act.Balance += amount
+	act.UpdatedAt = time.Now()
 }
