@@ -38,11 +38,11 @@ type InvoiceOutput struct {
 
 func ToInvoice(input CreateInvoiceInput, accountID string) (*domain.Invoice, error) {
 	card := domain.CreditCard{
-		Number:         input.CardNumber,
-		CVV:            input.CVV,
-		ExpiryMonth:    input.ExpiryMonth,
-		ExpiryYear:     input.ExpiryYear,
-		CardholderName: input.CardholderName,
+		Number:      input.CardNumber,
+		Cvv:         input.CVV,
+		ExpiryMonth: input.ExpiryMonth,
+		ExpiryYear:  input.ExpiryYear,
+		HolderName:  input.CardholderName,
 	}
 
 	return domain.NewInvoice(
